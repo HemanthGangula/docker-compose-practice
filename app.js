@@ -1,41 +1,31 @@
 // app.js
+
 const express = require('express');
-const mongoose = require('mongoose');
-
 const app = express();
+const bodyParser = require('body-parser');
+const path = require('path');
 
-// Connect to MongoDB
-mongoose.connect('mongodb://mongo/sampledb', { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('Error connecting to MongoDB:', err));
+// Middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Define a schema for a sample model
-const SampleSchema = new mongoose.Schema({
-  name: String,
-  description: String
-});
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Create a model based on the schema
-const SampleModel = mongoose.model('Sample', SampleSchema);
-
-// Define a route handler for the root URL
+// Route to serve the signup page
 app.get('/', (req, res) => {
-  res.send('Hello World! This is the root route.');
+    res.sendFile(path.join(__dirname, 'public', 'signup.html'));
 });
 
-// Define a route to create a new sample document
-app.get('/create', async (req, res) => {
-  const sample = new SampleModel({ name: 'Sample', description: 'This is a sample document' });
-  await sample.save();
-  res.send('Sample document created');
+// Route to handle signup form submission
+app.post('/signup', (req, res) => {
+    // Handle signup logic here
+    res.send('Signup page');
 });
 
-// Define a route to fetch all sample documents
-app.get('/samples', async (req, res) => {
-  const samples = await SampleModel.find();
-  res.json(samples);
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
-
-const PORT = 3000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 
